@@ -255,12 +255,12 @@
 
 /* ── Custom cursor ─────────────────────────────────────────────────────── */
 
-body[data-cursor='on'],
-body[data-cursor='on'] * {
+body[data-cursor-mode='on'],
+body[data-cursor-mode='on'] * {
   cursor: none;
 }
-body[data-cursor='on'] input,
-body[data-cursor='on'] textarea {
+body[data-cursor-mode='on'] input,
+body[data-cursor-mode='on'] textarea {
   cursor: text;
 }
 
@@ -303,8 +303,8 @@ body[data-cursor='on'] textarea {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  body[data-cursor='on'],
-  body[data-cursor='on'] * {
+  body[data-cursor-mode='on'],
+  body[data-cursor-mode='on'] * {
     cursor: auto;
   }
 }

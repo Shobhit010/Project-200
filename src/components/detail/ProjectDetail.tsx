@@ -173,7 +173,9 @@ export function ProjectDetail() {
                       href={project.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      data-cursor="external"
+                      /* Already reads "OPEN PROJECT ↗" — the cursor does not
+                         repeat the label on this solid surface. */
+                      data-cursor="link"
                       className="u-mono inline-flex items-center gap-2 bg-ink px-6 py-4 text-void transition-colors hover:bg-white"
                     >
                       OPEN PROJECT <span aria-hidden>↗</span>

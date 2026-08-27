@@ -31,12 +31,12 @@ export function Cursor() {
 
   useEffect(() => {
     if (!enabled) {
-      document.body.dataset.cursor = 'off';
+      document.body.dataset.cursorMode = 'off';
       return;
     }
-    document.body.dataset.cursor = 'on';
+    document.body.dataset.cursorMode = 'on';
     return () => {
-      document.body.dataset.cursor = 'off';
+      document.body.dataset.cursorMode = 'off';
     };
   }, [enabled]);
 
@@ -53,9 +53,11 @@ export function Cursor() {
       if (!visible) setVisible(true);
 
       const el = (e.target as HTMLElement | null)?.closest<HTMLElement>('[data-cursor]');
-      const next = (el?.dataset.cursor as CursorState | undefined) ?? 'default';
+      const raw = el?.dataset.cursor;
+      // Only known states expand the ring; anything else falls back to the dot.
+      const next: CursorState = raw && raw in LABELS ? (raw as CursorState) : 'default';
       setState((prev) => (prev === next ? prev : next));
-      setLabel(el?.dataset.cursorLabel ?? LABELS[next] ?? '');
+      setLabel(next === 'default' ? '' : (el?.dataset.cursorLabel ?? LABELS[next]));
     };
 
     const onLeave = () => setVisible(false);
@@ -90,22 +92,53 @@ export function Cursor() {
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-[120]">
+      {/*
+        One point, nothing around it. It swells slightly over anything
+        interactive and carries its bloom with it.
+      */}
       <div
         ref={dotRef}
-        className="fixed left-0 top-0 h-1 w-1 rounded-full bg-ink transition-opacity duration-200"
-        style={{ opacity: visible && !expanded ? 1 : 0 }}
-      />
+        className="fixed left-0 top-0 h-0 w-0 transition-opacity duration-200"
+        style={{ opacity: visible ? 1 : 0 }}
+      >
+        {/*
+          The bloom blends normally, so it reads as light on the void. The core
+          on top of it uses difference blending, which keeps the point visible
+          even on the archive's few solid white surfaces.
+        */}
+        <span
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full transition-[width,height] duration-300"
+          style={{
+            width: expanded ? 44 : 30,
+            height: expanded ? 44 : 30,
+            background: `radial-gradient(circle, rgb(255 255 255 / ${
+              expanded ? 0.5 : 0.38
+            }), transparent 68%)`,
+          }}
+        />
+        <span
+          className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-white transition-[width,height] duration-300"
+          style={{
+            width: expanded ? 13 : 7,
+            height: expanded ? 13 : 7,
+            mixBlendMode: 'difference',
+          }}
+        />
+      </div>
+
+      {/* The label trails the point rather than boxing it in. */}
       <div
         ref={ringRef}
-        className="fixed left-0 top-0 flex items-center justify-center rounded-full border border-hairline-strong u-glass transition-[width,height,opacity,background-color] duration-300"
-        style={{
-          width: expanded ? (text ? 74 : 44) : 28,
-          height: expanded ? (text ? 74 : 44) : 28,
-          opacity: visible ? 1 : 0,
-        }}
+        className="fixed left-0 top-0 transition-opacity duration-300"
+        style={{ opacity: visible && text ? 1 : 0 }}
       >
         {text ? (
-          <span className="u-mono text-[0.52rem] text-ink whitespace-nowrap">{text}</span>
+          <span
+            className="u-mono absolute left-4 top-2 whitespace-nowrap text-[0.5rem] text-white"
+            style={{ textShadow: '0 0 5px rgb(0 0 0 / 0.95), 0 1px 3px rgb(0 0 0 / 0.9)' }}
+          >
+            {text}
+          </span>
         ) : null}
       </div>
     </div>

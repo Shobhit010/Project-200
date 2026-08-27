@@ -63,7 +63,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} ${plexMono.variable}`}>
-      <body>{children}</body>
+      {/*
+        Browser extensions (ColorZilla, Grammarly, password managers) stamp
+        attributes onto <body> before React hydrates, which React reports as a
+        mismatch. Suppressing here covers only this element's own attributes —
+        children still hydrate with full checking.
+      */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
